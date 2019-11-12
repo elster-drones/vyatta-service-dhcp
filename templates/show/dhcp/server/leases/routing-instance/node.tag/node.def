@@ -1,0 +1,4 @@
+help: Show current DHCP leases for a routing-instance 
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run: ${vyatta_bindir}/dhcp-show-leases.pl --rtinst $6

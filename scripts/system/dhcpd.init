@@ -1,0 +1,133 @@
+#!/bin/bash
+# Copyright (c) 2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2014 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+. /lib/lsb/init-functions
+
+RTINST=$2
+mkdir -p /config/dhcpd/
+mkdir -p /var/run/dhcpd/
+touch /config/dhcpd/dhcpd_vrf_$RTINST.leases
+touch /config/dhcpd/dhcpd_vrf_$RTINST-alt.leases
+touch /config/dhcpd/dhcpd_vrf_$RTINST.trace
+NAME=dhcpd
+DAEMON=/usr/sbin/$NAME
+CONFIGFILE=/opt/vyatta/etc/dhcpd/dhcpd_vrf_$RTINST.conf
+PIDFILE=/var/run/dhcpd/dhcpd_vrf_$RTINST.pid
+ENVFILE=/var/run/dhcpd/dhcpd_vrf_$RTINST.env
+UNPIDFILE=/var/run/dhcpd/dhcpd_vrf_$RTINST-unused.pid
+CNTRFILE=/var/run/dhcpd/dhcpd_vrf_$RTINST.cntr
+LEASEFILE=/config/dhcpd/dhcpd_vrf_$RTINST.leases
+ALTLEASEFILE=/config/dhcpd/dhcpd_vrf_$RTINST-alt.leases
+DEFAULT='--opmode'
+MODE=${3:+$DEFAULT}
+INTERFACES="$(/opt/vyatta/sbin/listento-intfs.pl --ipversion ipv4 --vrf $RTINST $MODE)"
+
+# exit if no routing instance name is specified.
+if [[ -z $RTINST ]]; then
+	log_failure_msg "Exit. No routing instance name is specified."
+	exit 1
+fi
+
+write_envfile() {
+	rm -f $ENVFILE
+	touch $ENVFILE
+	echo "INTERFACES=$INTERFACES" >> $ENVFILE
+}
+
+start() {
+	if [ ! -f "$CONFIGFILE" ]; then
+	  log_failure_msg "Cannot start the DHCP server because configuration file $CONFIGFILE is absent."
+	  exit 1
+	fi
+
+	if [ -d "/run/systemd/system" ]; then
+	  write_envfile
+	  if [ "$RTINST" != "default" ]; then
+	    OUTPUT=`systemctl start vyatta-service-dhcp-server\@$RTINST.service 2> /dev/null`
+	  else
+	    OUTPUT=`systemctl start vyatta-service-dhcp-server.service 2> /dev/null`
+	  fi
+	else
+	  OUTPUT=`/usr/sbin/chvrf $RTINST $DAEMON \
+	  $INTERFACES -pf $PIDFILE -cf $CONFIGFILE -lf $LEASEFILE \
+          -cntrf $CNTRFILE 2>&1`
+
+	  PID=`cat $PIDFILE 2>/dev/null`
+	  if [ ! -d "/proc/$PID" ]; then
+	    if [ "$OUTPUT" == "" ]; then
+	      # this can happen under high load due to some sort of a race condition
+	      sleep 1
+	      start
+	    else
+	      log_failure_msg "$OUTPUT"
+	      exit 1
+	    fi
+	  fi
+	fi
+}
+
+stop() {
+	if [ -d "/run/systemd/system" ]; then
+	    if [ "$RTINST" != "default" ]; then
+	      OUTPUT=`systemctl stop vyatta-service-dhcp-server\@$RTINST.service 2> /dev/null`
+	    else
+	      OUTPUT=`systemctl stop vyatta-service-dhcp-server.service 2> /dev/null`
+	    fi
+	else
+	    if [ -f "$PIDFILE" ]; then
+	      PID=`cat $PIDFILE`
+	      if [ -n "$PID" ]; then
+	        OUTPUT=`kill -HUP $PID`
+
+# Verification loop is needed working with isc-dhcp 4.3.2.  DHCP server
+# daemon takes longer to terminate itself.  The new dhcp daemon is not
+# able to start if old dhcp server daemon is not stopped completely.
+	        while [ -d "/proc/$PID" ]; do
+	          sleep 1
+	        done
+	      fi
+	      rm -f $PIDFILE $CNTRFILE
+	    fi
+	fi
+}
+
+restart () {
+	if [ -d "/run/systemd/system" ]; then
+	    write_envfile
+	    if [ "$RTINST" != "default" ]; then
+	      OUTPUT=`systemctl restart vyatta-service-dhcp-server\@$RTINST.service 2> /dev/null`
+	    else
+	      OUTPUT=`systemctl restart vyatta-service-dhcp-server.service 2> /dev/null`
+	    fi
+        else
+	    stop
+	    start
+	fi
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		restart
+		;;
+        status)
+		status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+		;;
+
+	*)
+		log_failure_msg "usage: $0 {start|stop|restart} configfile interface"
+		exit 1
+		;;
+esac
+
+exit 0

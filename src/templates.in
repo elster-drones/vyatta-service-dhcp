@@ -1,0 +1,321 @@
+##
+## **** License ****
+##
+## Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+##
+## Copyright (c) 2014 by Brocade Communications Systems, Inc.
+## All rights reserved.
+##
+## This code was originally developed by Vyatta, Inc.
+## Portions created by Vyatta are Copyright (C) 2010-2013 Vyatta, Inc.
+## All Rights Reserved.
+##
+## SPDX-License-Identifier: GPL-2.0-only
+##
+## Author: Bob Gilligan
+## Date: March 2010
+## Description: Input to generate Vyatta config templates for the DHCPv6 server
+##
+## **** End License ****
+
+## 
+## This file generates the Vyatta config templates for the DHCPv6
+## server.  The template file name to generate is set by the "file:"
+## tag.  All input lines after that tag up until the next "file:" tag
+## are copied vertatim into that file.  All intervening directories are
+## created automatically.  Comments to the generation script start
+## with "##".  These lines will NOT be copied to the template file.
+## Lines beginning with a single "#" WILL be copied to the template
+## file.
+##
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/node.def
+
+priority: 900
+
+help: DHCP for IPv6 (DHCPv6) server
+
+commit:expression: exec "/opt/vyatta/sbin/dhcpdv6-config.pl"
+end:
+	if [ "$COMMIT_ACTION" = "SET" ]; then
+	    dhcpdv6.init start
+	elif [ "$COMMIT_ACTION" = "DELETE" ]; then
+	    dhcpdv6.init stop
+	elif [ "$COMMIT_ACTION" = "ACTIVE" ]; then
+	    dhcpdv6.init restart
+	else
+	    echo "Error: COMMIT_ACTION environment variable is not set!"
+            exit 0
+	fi
+        echo "Done."
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/preference/node.def
+
+help: Preference of this DHCPv6 server compared with others
+
+type: u32
+
+val_help: u32:0-255; Preference of this DHCPv6 server
+
+syntax:expression: ($VAR(@) >= 0) && ($VAR(@) <= 255) ; "Preference must be between 0 and 255"
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.def
+
+tag:
+
+type: txt
+
+help: DHCPv6 shared network name [REQUIRED]
+
+syntax:expression: pattern $VAR(@) "^[-_a-zA-Z0-9.]+$" ; "invalid DHCP pool name \"$VAR(@)\""
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.def
+
+tag:
+
+type:  ipv6net
+
+help: IPv6 DHCP subnet for this shared network [REQUIRED]
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/description/node.def
+
+type: txt
+
+help: Description of this subnet
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/address-range/node.def
+
+help: Parameters setting ranges for assigning IPv6 addresses
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/address-range/start/node.def
+
+tag:
+
+type: ipv6
+
+help: First in range of consecutive IPv6 addresses to assign
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/address-range/start/node.tag/stop/node.def
+
+type: ipv6
+
+help: Last in range of consecutive IPv6 addresses
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/address-range/prefix/node.def
+
+tag:
+
+type: ipv6net
+
+help: IPv6 prefix defining range of addresses to assign
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/address-range/prefix/node.tag/temporary/node.def
+
+# This is a valueless node
+
+help: Address range will be used for temporary addresses
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/nisplus-domain/node.def
+
+type: txt
+
+help: NIS Plus domain name for client to use
+
+syntax:expression: pattern $VAR(@) "^[-_a-zA-Z0-9.]+$" ; "invalid NIS Plus domain name syntax \"$VAR(@)\""
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/name-server/node.def
+
+multi:
+
+type: ipv6
+
+help: IPv6 address of a Recursive DNS Server
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/nis-domain/node.def
+
+type: txt
+
+help: NIS domain name for client to use
+
+syntax:expression: pattern $VAR(@) "^[-_a-zA-Z0-9.]+$" ; "invalid NIS domain name syntax \"$VAR(@)\""
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/prefix-delegation/node.def
+
+help: Parameters relating to IPv6 prefix delegation
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/prefix-delegation/start/node.def
+tag:
+
+type: ipv6
+
+help: First in range of IPv6 addresses to be used in prefix delegation
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/prefix-delegation/start/node.tag/prefix-length/node.def
+
+type: u32
+
+help: Length in bits of prefixes to be delegated
+
+syntax:expression: ($VAR(@) >= 0) && ($VAR(@) <= 128) ; "Prefix must be between 0 and 128"
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/prefix-delegation/start/node.tag/stop/node.def
+
+type: ipv6
+
+help: Last in range of IPv6 addresses to be used in prefix delegation
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/sip-server-name/node.def
+
+multi:
+
+type: txt
+
+help: SIP server name
+
+syntax:expression: pattern $VAR(@) "^[-_a-zA-Z0-9.]+$" ; "invalid SIP server name syntax \"$VAR(@)\""
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/domain-search/node.def
+
+multi:
+
+type: txt
+
+help: Domain name for client to search
+
+syntax:expression: pattern $VAR(@) "^[-_a-zA-Z0-9.]+$" ; "invalid domain name syntax \"$VAR(@)\""
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/sip-server-address/node.def
+
+multi:
+
+type: ipv6
+
+help: IPv6 address of a SIP name server
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/sntp-server/node.def
+
+multi:
+
+type: ipv6
+
+help: IPv6 address of an SNTP Server for client to use
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/nisplus-server/node.def
+
+multi:
+
+type: ipv6
+
+help: IPv6 address of a NIS Plus server
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/static-mapping/node.def
+
+tag:
+
+type: txt
+
+help: Name of static mapping
+
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/static-mapping/node.tag/ipv6-address/node.def
+
+type: ipv6
+
+help: Client IPv6 address for this static mapping
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/static-mapping/node.tag/identifier/node.def
+
+type: txt
+
+help: Client identifier for this static mapping
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/nis-server/node.def
+
+multi:
+
+type: ipv6
+
+help: IPv6 address of a NIS server
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/lease-time/node.def
+
+help: Parameters relating to the lease time
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/lease-time/maximum/node.def
+
+type: u32
+
+help: Maximum time (in seconds) that will be assigned to a lease
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/lease-time/minimum/node.def
+
+type: u32
+
+help: Minimum time (in seconds) that will be assigned to a lease
+
+##-----------------------------------------------------------------------------
+
+file: service/dhcpv6-server/shared-network-name/node.tag/subnet/node.tag/lease-time/default/node.def
+
+type: u32
+
+help: Default time (in seconds) that will be assigned to a lease
+

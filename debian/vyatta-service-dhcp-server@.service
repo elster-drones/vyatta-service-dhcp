@@ -1,0 +1,10 @@
+[Unit]
+Description=Vyatta service dhcp server on routing-instance %i
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhcpd/dhcpd_vrf_%i.env
+PIDFile=/var/run/dhcpd/dhcpd_vrf_%i.pid
+ExecStart=/usr/sbin/chvrf %i /usr/sbin/dhcpd $INTERFACES -pf /var/run/dhcpd/dhcpd_vrf_%i.pid -cf /opt/vyatta/etc/dhcpd/dhcpd_vrf_%i.conf -lf /config/dhcpd/dhcpd_vrf_%i.leases -cntrf /var/run/dhcpd/dhcpd_vrf_%i.cntr
+ExecStop=/usr/sbin/chvrf %i /bin/kill -HUP $MAINPID
+ExecStopPost=/bin/rm -f /var/run/dhcpd/dhcpd_vrf_%i.pid /var/run/dhcpd/dhcpd_vrf_%i.cntr

@@ -1,0 +1,6 @@
+help: Restart DHCPv6 relay agent in a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+
+run: dhcv6relay-starter.pl --rtinst $5 --op_mode \
+	--config_action ACTIVE

@@ -1,0 +1,3 @@
+help: Show current DHCP statistics for a specific pool in default routing-instance
+run: ${vyatta_bindir}/vyatta-show-dhcp-server.pl --show-stats --pool "$6" --rtinst "default"
+allowed: ( [ -e /opt/vyatta/etc/dhcpd/dhcpd_vrf_default.conf ] && grep '^shared-network ' /opt/vyatta/etc/dhcpd/dhcpd_vrf_default.conf ) | perl -p -e 's/^shared-network\s+(\S+)\s+\{/$1/' | sort -u

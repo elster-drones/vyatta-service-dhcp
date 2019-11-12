@@ -1,0 +1,7 @@
+help: Restart DHCPv6 server
+
+run:
+    /opt/vyatta/sbin/dhcpdv6-config.pl --rtinst=default --op_mode
+    if [ $? -eq 0 ]; then
+        /opt/vyatta/sbin/dhcpdv6.init restart default opmode
+    fi

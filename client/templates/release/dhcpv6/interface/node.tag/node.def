@@ -1,0 +1,3 @@
+help: Release DHCPv6 lease for interface
+allowed: /opt/vyatta/bin/dhcp-client-get-interfaces --version=v6
+run: /opt/vyatta/sbin/vyatta-dhcpv6-client --release --ifname "$4"

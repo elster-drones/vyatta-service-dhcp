@@ -1,0 +1,11 @@
+help: Restart DHCP server in default routing-instance
+
+run:
+    if cli-shell-api existsEffective service dhcp-server; then
+        echo -n "Restarting DHCP server..."
+        /opt/vyatta/sbin/dhcpd.init restart default opmode
+        if [[ $? -eq 0 ]]; then
+          echo "success!"
+        fi
+    fi   
+

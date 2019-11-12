@@ -1,0 +1,4 @@
+help: Reset the DHCP lease for a specific MAC address in default routing-instance
+run: vyatta-clear-dhcp-lease.pl  --ilfile=/config/dhcpd/dhcpd_vrf_default.leases --olfile=/config/dhcpd/dhcpd_vrf_default.leases --rtinst="default" --lmac="$6"  --pidf=/var/run/dhcpd/dhcpd_vrf_default.pid --init=/opt/vyatta/sbin/dhcpd.init
+allowed: local -a ARR=( $(( [ -e /config/dhcpd/dhcpd_vrf_default.leases ] && grep -E 'hardware ethernet .+;' /config/dhcpd/dhcpd_vrf_default.leases ) | perl -p -e 's/.+hardware ethernet (.+);/$1/' | sort -u) )
+         echo -n "<h:h:h:h:h:h>" ${ARR[@]}

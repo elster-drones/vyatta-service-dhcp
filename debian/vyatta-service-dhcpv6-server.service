@@ -1,0 +1,13 @@
+# this file is needed since dh_systemd_* does not work with instantiated service
+# due to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770344
+
+[Unit]
+Description=DHCPv6 server service 
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhcpdv6/dhcpdv6_vrf_default.env
+PIDFile=/var/run/dhcpdv6/dhcpdv6_vrf_default.pid
+ExecStart=/usr/sbin/dhcpd $INTERFACES -6 -pf /var/run/dhcpdv6/dhcpdv6_vrf_default.pid -cf /opt/vyatta/etc/dhcpdv6/dhcpdv6_vrf_default.conf -lf /var/log/dhcpdv6/dhcpdv6_vrf_default.leases
+ExecStop=/bin/kill -HUP $MAINPID
+ExecStopPost=/bin/rm -f /var/run/dhcpdv6/dhcpdv6_vrf_default.pid

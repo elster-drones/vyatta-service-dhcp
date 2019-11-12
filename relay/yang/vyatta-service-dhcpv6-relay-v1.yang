@@ -1,0 +1,127 @@
+module vyatta-service-dhcpv6-relay-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-service-dhcpv6-relay:1";
+	prefix vyatta-service-dhcpv6-relay-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import vyatta-services-v1 {
+		prefix service;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019 AT&T Intellectual Property
+		 All rights reserved.
+
+		 Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-service-dhcpv6-relay-v1";
+
+	revision 2016-07-19 {
+		description "Switch the order of key tagnode and leaf tagnode.";
+	}
+	revision 2015-08-14 {
+		description "Initial revision of version 1.";
+	}
+
+	grouping dhcpv6-relay-service {
+		container dhcpv6-relay {
+			presence "true";
+			configd:priority "900";
+			configd:help "DHCPv6 Relay Agent parameters";
+			configd:end "/opt/vyatta/share/tmplscripts/service/dhcpv6-relay/configd_end.sh";
+			list upstream-interface {
+				configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcpv6-relay/upstream-interface/configd_allowed.sh";
+				configd:help "Interface for DHCPv6 Relay Agent forward requests out";
+				leaf tagnode {
+					type string;
+					configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcpv6-relay/upstream-interface/configd_allowed.sh";
+					configd:help "Interface for DHCPv6 Relay Agent forward requests out";
+				}
+				key "tagnode";
+				leaf address {
+					type types:ipv6-address;
+					configd:help "IPv6 address to forward requests to";
+				}
+			}
+			leaf max-hop-count {
+				type uint32 {
+					range 1..255 {
+						error-message "Must be between 1 and 255";
+					}
+				}
+				configd:help "Maximum hop count for which requests will be processed";
+			}
+			list listen-interface {
+				configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcpv6-relay/listen-interface/configd_allowed.sh";
+				configd:help "Interface for DHCPv6 Relay Agent to listen for requests";
+				leaf tagnode {
+					type string;
+					configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcpv6-relay/listen-interface/configd_allowed.sh";
+					configd:help "Interface for DHCPv6 Relay Agent to listen for requests";
+				}
+				key "tagnode";
+				leaf address {
+					type types:ipv6-address;
+					configd:help "IPv6 address on listen-interface listen for requests on";
+				}
+			}
+			leaf listen-port {
+				type uint32 {
+					range 1..65535 {
+						error-message "Must be between 1 and 65535";
+					}
+				}
+				configd:help "UDP port to listen for requests on";
+			}
+			leaf use-interface-id-option {
+				type empty;
+				configd:help "Option to set DHCPv6 interface-ID option";
+			}
+		}
+	}
+
+	augment /service:service {
+		uses dhcpv6-relay-service;
+	}
+}

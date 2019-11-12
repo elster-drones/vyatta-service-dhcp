@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2015 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+use strict;
+use warnings;
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Misc;
+
+sub usage {
+    print <<EOF;
+Usage: <device> <inet|inet6> <address>
+EOF
+    exit 1;
+}
+
+my $dev   = shift;
+my $proto = shift;
+my $addr  = shift;
+
+usage() unless defined($dev);
+usage() unless defined($proto);
+usage() unless defined($addr);
+
+if ( $proto eq 'inet6' && $addr =~ /^fe80::/ ) {
+    foreach my $conf_addr (Vyatta::Misc::get_intf_cfg_addr($dev)) {
+        next unless ( $conf_addr eq "dhcpv6" );
+
+        # It's possible to have more than one link local address.  Only start
+        # the dhcp client when the first is added.
+
+        my $count = 0;
+        my $lladdrs = `ip addr list dev $dev | grep "inet6 fe80.*scope link"`;
+        foreach my $line (split /[\r\n]+/, $lladdrs) {
+            $count++;
+        }
+        last if ( $count > 1 );
+
+        my $cmd = "/opt/vyatta/sbin/vyatta-dhcpv6-client --start --ifname $dev";
+        system ($cmd);
+    }
+}
+exit 0
+

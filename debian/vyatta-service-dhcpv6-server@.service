@@ -1,0 +1,10 @@
+[Unit]
+Description=Vyatta service dhcpv6 server on routing-instance %i
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhcpdv6/dhcpdv6_vrf_%i.env
+PIDFile=/var/run/dhcpdv6/dhcpdv6_vrf_%i.pid
+ExecStart=/usr/sbin/chvrf %i /usr/sbin/dhcpd $INTERFACES -6 -pf /var/run/dhcpdv6/dhcpdv6_vrf_%i.pid -cf /opt/vyatta/etc/dhcpdv6/dhcpdv6_vrf_%i.conf -lf /var/log/dhcpdv6/dhcpdv6_vrf_%i.leases 
+ExecStop=/usr/sbin/chvrf %i /bin/kill -HUP $MAINPID
+ExecStopPost=/bin/rm -f /var/run/dhcpdv6/dhcpdv6_vrf_%i.pid

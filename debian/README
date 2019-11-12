@@ -1,0 +1,6 @@
+The Debian Package vyatta-service-dhcp
+--------------------------------------
+
+This package has the Vyatta DHCP
+configuration templates, scripts and
+the CLI template for the "dhcp" commands

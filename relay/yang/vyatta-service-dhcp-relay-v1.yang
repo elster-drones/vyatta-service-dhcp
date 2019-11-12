@@ -1,0 +1,146 @@
+module vyatta-service-dhcp-relay-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-service-dhcp-relay:1";
+	prefix vyatta-service-dhcp-relay-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import vyatta-services-v1 {
+		prefix service;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019 AT&T Intellectual Property
+		 All rights reserved.
+
+		 Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-service-dhcp-relay-v1";
+
+	revision 2016-06-01 {
+		description "Refactor groupings for routing-instance";
+	}
+
+	revision 2015-08-14 {
+		description "Initial revision of version 1.";
+	}
+
+	grouping dhcp-relay-service {
+		container dhcp-relay {
+			presence "true";
+			configd:priority "910";
+			configd:help "Dynamic Host Configuration Protocol (DHCP) relay agent";
+			configd:end "/opt/vyatta/share/tmplscripts/service/dhcp-relay/configd_end1.cli";
+			leaf-list server {
+				type types:ipv4-address;
+				ordered-by "user";
+				configd:help "DHCP server address";
+			}
+			leaf-list listen-interface {
+				type string;
+				ordered-by "user";
+				configd:help "DHCP relay interface which DHCP clients are attached [REQUIRED]";
+				configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcp-relay/interface/configd_allowed.sh";
+			}
+			leaf-list upstream-interface {
+				type string;
+				ordered-by "user";
+				configd:help "DHCP relay interface which DHCP server is attached [REQUIRED]";
+				configd:allowed "/opt/vyatta/share/tmplscripts/service/dhcp-relay/interface/configd_allowed.sh";
+			}
+
+			container relay-options {
+				presence "true";
+				configd:help "Relay options";
+				leaf relay-agents-packets {
+					type enumeration {
+						enum "append" {
+							configd:help "append own relay options to packet";
+						}
+						enum "replace" {
+							configd:help "replace existing agent option field";
+						}
+						enum "forward" {
+							configd:help "forward packet unchanged";
+						}
+						enum "discard" {
+							configd:help "discard packet (default action if giaddr not set in packet)";
+						}
+					}
+					default "forward";
+					configd:help "Policy to handle incoming DHCPv4 packets which already contain relay agent options";
+				}
+				leaf max-size {
+					type uint32 {
+						range 64..1400 {
+							error-message "max-size must be a value between 64 and 1400";
+						}
+					}
+					default "576";
+					configd:help "Maximum packet size to send to a DHCPv4/BOOTP server";
+				}
+				leaf port {
+					type uint32 {
+						range 1..65535 {
+							error-message "port must be a value between 1 and 65535";
+						}
+					}
+					configd:help "Port number to listen on";
+				}
+				leaf hop-count {
+					type uint32 {
+						range 1..255 {
+							error-message "hop-count must be a value between 1 and 255";
+						}
+					}
+					default "10";
+					configd:help "Policy to discard packets that have reached specified hop-count";
+				}
+			}
+		}
+	}
+
+	augment /service:service {
+		uses dhcp-relay-service;
+	}
+}

@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2018-2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2015 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+use strict;
+use warnings;
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Config;
+use Vyatta::Interface;
+use Vyatta::Misc;
+use NetAddr::IP;
+
+# The dhcpd daemon will exit in the event that no suitable
+# addresses are configured for the dhcp subnets. This can
+# occur during a transient configuration change on an
+# interface. Start the dhcpd in the event that the dhcp server
+# is configured and the dhcpd daemon is not currently running.
+
+sub usage {
+    print <<EOF;
+Usage: <device> <inet|inet6> <address>
+EOF
+    exit 1;
+}
+
+my $op_mode_flag = 1;
+my $listNodes    = ( $op_mode_flag ? "listOrigNodes" : "listNodes" );
+my $exists       = ( $op_mode_flag ? "existsOrig" : "exists" );
+
+my $dev;
+my $proto;
+my $addr;
+my $vrf;
+my $config_prefix;
+
+sub start_dhcpd {
+    my ( $vc, $dev, $addr ) = @_;
+    my $found = 0;
+    return unless ( -e "/opt/vyatta/etc/dhcpd/dhcpd_vrf_$vrf.conf" );
+
+    if ( $vc->$exists("$config_prefix dhcp-server listento interface $dev") ) {
+        system("/opt/vyatta/sbin/dhcpd.init restart $vrf opmode");
+        return;
+    }
+    my $path = "$config_prefix dhcp-server shared-network-name";
+    $vc->setLevel($path);
+    my @subnets = $vc->$listNodes();
+    foreach my $name (@subnets) {
+        $vc->setLevel($path);
+        my @subnets = $vc->$listNodes("$name subnet");
+        foreach my $subnet (@subnets) {
+            my $naipIP      = new NetAddr::IP($addr);
+            my $naipNetwork = new NetAddr::IP($subnet);
+            next unless ( $naipIP->within($naipNetwork) );
+            $found = 1;
+            last;
+        }
+        if ($found) {
+            system("/opt/vyatta/sbin/dhcpd.init restart $vrf opmode");
+            last;
+        }
+    }
+}
+
+sub check_and_restart_dhcpv6 {
+    my ( $vc, $addr ) = @_;
+
+    my $found = 0;
+    my $path = "$config_prefix dhcpv6-server shared-network-name";
+    $vc->setLevel($path);
+    my @subnets = $vc->$listNodes();
+    foreach my $name (@subnets) {
+        $vc->setLevel($path);
+        my @subnets = $vc->$listNodes("$name subnet");
+        foreach my $subnet (@subnets) {
+            my $naipIP      = new NetAddr::IP($addr);
+            my $naipNetwork = new NetAddr::IP($subnet);
+            next unless ( $naipIP->within($naipNetwork) );
+            $found = 1;
+            last;
+        }
+        if ($found) {
+            system("/opt/vyatta/sbin/dhcpdv6.init restart $vrf opmode");
+            last;
+        }
+    }
+}
+
+sub start_dhcpdv6 {
+    my ( $vc, $dev, $addr ) = @_;
+    my $found = 0;
+    return unless ( -e "/opt/vyatta/etc/dhcpdv6/dhcpdv6_vrf_$vrf.conf" );
+
+    if ( $vc->$exists("$config_prefix dhcpv6-server listento interface $dev") ) {
+        system("/opt/vyatta/sbin/dhcpdv6.init restart $vrf opmode");
+        return;
+    }
+
+    if ( is_link_local($addr) ) {
+        my @ipaddrs = `ip addr show dev $dev | sed -e's/^.*inet6 \\([^ ]*\\)\\/.*/\\1/;t;d'`;
+        foreach my $ipaddr (@ipaddrs) {
+            chomp($ipaddr);
+            next if ( is_link_local($ipaddr) );
+            check_and_restart_dhcpv6( $vc, $ipaddr );
+        }
+        return;
+    }
+
+    check_and_restart_dhcpv6( $vc, $addr );
+
+}
+
+# find out which VRF the $dev belongs to
+sub match_vrf {
+    my $config_path = "service";
+
+    my $intf = new Vyatta::Interface($dev);
+    $intf or die "Unknown interface name or type: $dev\n";
+
+    my $vrf_name = $intf->vrf();
+
+    if ( ( $vrf_name ) && ( $vrf_name ne "default" ) ) {
+        $config_path = "routing routing-instance $vrf_name service";
+    }
+    return ($vrf_name, $config_path);
+}
+
+$dev   = shift;
+$proto = shift;
+$addr  = shift;
+
+usage() unless defined($dev);
+usage() unless defined($proto);
+usage() unless defined($addr);
+
+($vrf, $config_prefix) = match_vrf();
+
+my $vcDHCP = new Vyatta::Config();
+
+if ( $proto eq 'inet' ) {
+    if ( $vcDHCP->$exists("$config_prefix dhcp-server") ) {
+        start_dhcpd( $vcDHCP, $dev, $addr );
+    }
+}
+
+if ( $proto eq 'inet6' ) {
+    if ( $vcDHCP->$exists("$config_prefix dhcpv6-server") ) {
+        start_dhcpdv6( $vcDHCP, $dev, $addr );
+    }
+}
+
+exit 0

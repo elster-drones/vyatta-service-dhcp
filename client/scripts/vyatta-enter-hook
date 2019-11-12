@@ -1,0 +1,41 @@
+# vyatta dhclient enter script
+
+# IPv6 reasons end with "6", others are IPv4 reasons
+# Select the resolve.conf name accordingly
+#
+if [ "${reason: -1}" = "6" ]; then
+    resolv_conf=/var/lib/dhcp/dhclient-v6-$interface-resolv.conf
+else
+    resolv_conf=/var/lib/dhcp/dhclient-v4-$interface-resolv.conf
+fi
+
+alias ip=vyatta_ip
+
+# Process ip commands
+vyatta_ip() {
+    local dir=/etc/dhcp/ip-wrappers
+    local inhibit_ip_command=0
+    local ipcmd_prefix=
+
+    if [ -d "$dir" ]; then
+        for script in $(run-parts --list $dir); do
+            . $script
+        done
+    fi
+
+    if [ $inhibit_ip_command -ne 0 ]; then
+        return
+    fi
+
+    $ipcmd_prefix /bin/ip "$@"
+}
+
+# Process the DHCP operation
+case "$reason" in
+    EXPIRE|FAIL|RELEASE|STOP)
+        if [ -n "$old_ip_address" ]; then
+            # flush connected routes to generate netlink route delete messages
+            ip -4 route flush dev ${interface}
+        fi
+        ;;
+esac

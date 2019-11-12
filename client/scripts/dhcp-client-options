@@ -1,0 +1,18 @@
+#! /bin/bash
+#
+# "configd:end" script for DHCP client interface options.
+
+ifname="$1"
+
+# Proceed only if DHCP client configuration is present
+conffile=/var/lib/dhcp/dhclient_${ifname}.conf
+if [ ! -e $conffile ]; then
+    exit 0
+fi
+
+echo "Updating DHCP client configuration on ${ifname}..."
+/opt/vyatta/sbin/vyatta-dhcp-client --dev $ifname --action=stop
+/opt/vyatta/sbin/vyatta-dhcp-client --dev $ifname --action=start
+
+echo "Done."
+exit 0

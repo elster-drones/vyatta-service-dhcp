@@ -1,0 +1,13 @@
+# this file is needed since dh_systemd_* does not work with instantiated service
+# due to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770344
+
+[Unit]
+Description=DHCP relay service 
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhcrelay/dhcrelay_vrf_default.env
+PIDFile=/var/run/dhcrelay/dhcrelay_vrf_default.pid
+ExecStart=/usr/sbin/dhcrelay -pf /var/run/dhcrelay/dhcrelay_vrf_default.pid $ARGS
+ExecStop=/bin/kill -HUP $MAINPID
+ExecStopPost=/bin/rm -f /var/run/dhcrelay/dhcrelay_vrf_default.pid

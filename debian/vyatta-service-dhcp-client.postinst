@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+case "${1}" in
+	configure|abort-remove)
+	dpkg-divert --package vyatta-service-dhcp-client \
+	    --divert /usr/share/vyatta-service-dhcp-client/ddclient.vyatta \
+	    --rename /etc/dhcp/dhclient-exit-hooks.d/ddclient
+        ;;
+    *)
+        exit 0
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

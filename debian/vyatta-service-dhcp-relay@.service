@@ -1,0 +1,10 @@
+[Unit]
+Description=Vyatta service dhcp relay on routing-instance %i
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhcrelay/dhcrelay_vrf_%i.env
+PIDFile=/var/run/dhcrelay/dhcrelay_vrf_%i.pid
+ExecStart=/usr/sbin/chvrf %i /usr/sbin/dhcrelay -pf /var/run/dhcrelay/dhcrelay_vrf_%i.pid $ARGS
+ExecStop=/usr/sbin/chvrf %i /bin/kill -HUP $MAINPID
+ExecStopPost=/bin/rm -f /var/run/dhcrelay/dhcrelay_vrf_%i.pid

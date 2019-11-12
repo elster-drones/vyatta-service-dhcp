@@ -1,0 +1,3 @@
+help: Show DHCPv6 Server expired Leases for a specific routing-instance
+
+run: /opt/vyatta/sbin/dhcpdv6-show-leases.pl --rtinst $6 --expired

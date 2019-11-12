@@ -1,0 +1,4 @@
+help: Reset the DHCPv6 lease for a specific IPv6 address in a specific routing-instance
+run: vyatta-clear-dhcp-lease.pl  --ilfile="/var/log/dhcpdv6/dhcpdv6_vrf_$6.leases" --olfile="/var/log/dhcpdv6/dhcpdv6_vrf_$6.leases" --rtinst="$6"  --lipv6="$8"  --pidf="/var/run/dhcpdv6/dhcpdv6_vrf_$6.pid" --init=/opt/vyatta/sbin/dhcpdv6.init
+allowed: local -a ARR=( $(( [ -e /var/log/dhcpdv6/dhcpdv6_vrf_$6.leases ] && grep -E '^.+iaaddr .+ {' /var/log/dhcpdv6/dhcpdv6_vrf_$6.leases ) | perl -p -e 's/^.+iaaddr (.+) {/$1/' | sort -u) )
+         echo -n "<h:h:h:h:h:h:h:h>" ${ARR[@]}

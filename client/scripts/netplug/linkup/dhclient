@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2008-2013, Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+use strict;
+use warnings;
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Config;
+use Vyatta::Misc;
+
+#
+# main
+#
+
+my $dev=shift;
+
+# if the the interface does not exist for dhcp client
+if (! -f "/var/lib/dhcp/$dev") {
+   exit 0;
+}
+
+# only do this if interface is configured to use dhcp for getting IP address
+foreach my $addr (Vyatta::Misc::get_intf_cfg_addr($dev)) {
+   # do a dhcp lease renew for interface
+   my $cmd;
+   if ( $addr eq "dhcp" ) {
+      $cmd = "/opt/vyatta/sbin/vyatta-dhcp-client --dev=$dev --action=op-start";
+      system ($cmd);
+   }
+}
+
+exit 0;
+
+# end of file

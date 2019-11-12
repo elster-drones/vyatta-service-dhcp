@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2008-2014, Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+use strict;
+use warnings;
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Config;
+use Vyatta::Misc;
+
+#
+# main
+#
+
+my $dev=shift;
+
+# only do this if interface is configured to use dhcp for getting IP address
+foreach my $addr (Vyatta::Misc::get_intf_cfg_addr($dev)) {
+   # do a dhcp lease release for interface
+   my $cmd;
+   if ( $addr eq "dhcp" ) {
+      $cmd = "/opt/vyatta/sbin/vyatta-dhcp-client --dev=$dev --action=release";
+      system ($cmd);
+   } elsif ( $addr eq "dhcpv6" ) {
+      $cmd = "/opt/vyatta/sbin/vyatta-dhcpv6-client --stop --ifname $dev";
+      system ($cmd);
+   }
+}
+
+exit 0;
+
+# end of file

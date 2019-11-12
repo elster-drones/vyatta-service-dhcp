@@ -1,0 +1,3 @@
+help: Reset all DHCPv6 leases in default routing-instance
+run: vyatta-clear-dhcp-lease.pl --ilfile=/var/log/dhcpdv6/dhcpdv6_vrf_default.leases --olfile=/var/log/dhcpdv6/dhcpdv6_vrf_default.leases --rtinst="default" --lipv6=all --pidf=/var/run/dhcpdv6/dhcpdv6_vrf_default.pid --init=/opt/vyatta/sbin/dhcpdv6.init
+

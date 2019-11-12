@@ -1,0 +1,3 @@
+vyatta-cfg-dhcp-server: file-in-unusual-dir
+vyatta-cfg-dhcp-server: dir-or-file-in-opt
+vyatta-cfg-dhcp-server: unusual-interpreter opt/vyatta/share/tmplscripts/*

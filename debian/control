@@ -1,0 +1,253 @@
+Source: vyatta-service-dhcp
+Section: contrib/net
+Priority: optional
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends:
+ debhelper (>= 9.20160709) | dh-systemd,
+ debhelper (>= 9.20160403~) | dh-autoreconf,
+ dh-yang,
+ cpio,
+ debhelper (>= 9),
+Standards-Version: 3.9.6
+
+Package: vyatta-service-dhcp-server
+Provides: vyatta-service-dhcp-server
+Conflicts: vyatta-cfg-dhcp-server, vyatta-op-dhcp-server
+Breaks: vyatta-op (<< 1.0)
+Replaces: vyatta-cfg-dhcp-server, vyatta-op-dhcp-server, vyatta-op (<< 1.0)
+Architecture: all
+Depends:
+ isc-dhcp-server (>=4.3.1),
+ netplug,
+ libhtml-parser-perl (>= 3.66-1),
+ libhtml-tagset-perl (>= 3.20-2),
+ liburi-encode-perl (>= 1.1.1-1),
+ libjson-perl,
+ libdatetime-format-strptime-perl,
+ libnetaddr-ip-perl (>= 4.007+dfsg-1),
+ libvyatta-interface-perl (>= 1.26),
+ perl (>= 5.8.8),
+ procps (>= 1:3.2.7-3),
+ rsyslog | system-log-daemon,
+ sed (>= 4.1.5),
+ snmpd,
+ vyatta-cfg (>= 0.15.33),
+ vyatta-system (>= 1.6.1),
+ ${misc:Depends}
+Suggests:
+ ethtool,
+ ncurses-bin (>= 5.5-5),
+ net-tools,
+ util-linux (>= 2.13-5)
+Description: Vyatta DHCP-server-level configuration templates and scripts
+ Vyatta DHCP server CLI configuration and operational templates and scripts.
+
+Package: vyatta-service-dhcp-client
+Provides: vyatta-service-dhcp-client
+Architecture: all
+Depends:
+ isc-dhcp-client (>= 4.3.5-3+vyatta1),
+ netplug,
+ libhtml-parser-perl (>= 3.66-1),
+ libhtml-tagset-perl (>= 3.20-2),
+ libnetaddr-ip-perl (>= 4.007+dfsg-1),
+ perl (>= 5.8.8),
+ procps (>= 1:3.2.7-3),
+ rsyslog | system-log-daemon,
+ sed (>= 4.1.5),
+ snmpd,
+ vyatta-cfg (>= 0.15.33),
+ ${misc:Depends}
+Suggests:
+ ethtool,
+ ncurses-bin (>= 5.5-5),
+ net-tools,
+ util-linux (>= 2.13-5)
+Breaks:
+ vrf-manager (<< 2.0)
+Description: Vyatta DHCP-client-level configuration templates and scripts
+ Vyatta DHCP client CLI configuration and operational templates and scripts.
+
+Package: vyatta-service-dhcp-relay
+Provides: vyatta-service-dhcp-relay
+Conflicts: vyatta-cfg-dhcp-relay
+Replaces: vyatta-cfg-dhcp-relay
+Architecture: all
+Depends:
+ isc-dhcp-relay,
+ libnetaddr-ip-perl (>= 4.007+dfsg-1),
+ perl (>= 5.8.8),
+ procps (>= 1:3.2.7-3),
+ sed (>= 4.1.5),
+ vyatta-cfg (>= 0.15.33),
+ ${misc:Depends}
+Description: Vyatta DHCP relay level configuration
+ Vyatta DHCP relay level configuration templates and scripts.
+
+Package: vyatta-service-dhcp-relay-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-relay module
+ The YANG module for vyatta-service-dhcp-relay
+
+Package: vyatta-service-dhcp-relay-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-relay-v1 module
+ The YANG module for vyatta-service-dhcp-relay-v1
+
+Package: vyatta-service-dhcp-relay-routing-instance-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ libvyatta-vrfmanager-sh,
+ chvrf-utility,
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-relay-routing-instance-v1 module
+ The YANG module for vyatta-service-dhcp-relay-routing-instance-v1
+
+Package: vyatta-service-dhcpv6-relay-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-relay module
+ The YANG module for vyatta-service-dhcpv6-relay
+
+Package: vyatta-service-dhcpv6-relay-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-relay-v1 module
+ The YANG module for vyatta-service-dhcpv6-relay-v1
+
+Package: vyatta-service-dhcpv6-relay-routing-instance-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-relay (= ${binary:Version}),
+ libvyatta-vrfmanager-sh,
+ chvrf-utility,
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-relay-routing-instance-v1 module
+ The YANG module for vyatta-service-dhcpv6-relay-routing-instance-v1
+
+Package: vyatta-service-dhcp-server-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-server module
+ The YANG module for vyatta-service-dhcp-server
+
+Package: vyatta-service-dhcp-server-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-server-v1 module
+ The YANG module for vyatta-service-dhcp-server-v1
+
+Package: vyatta-service-dhcp-server-routing-instance-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ libvyatta-vrfmanager-sh,
+ chvrf-utility,
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcp-server-routing-instance-v1 module
+ The YANG module for vyatta-service-dhcp-server-routing-instance-v1
+
+Package: vyatta-service-dhcpv6-server-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-server module
+ The YANG module for vyatta-service-dhcpv6-server
+
+Package: vyatta-service-dhcpv6-server-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-server-v1 module
+ The YANG module for vyatta-service-dhcpv6-server-v1
+
+Package: vyatta-service-dhcpv6-server-routing-instance-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-server (= ${binary:Version}),
+ libvyatta-vrfmanager-sh,
+ chvrf-utility,
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-service-dhcpv6-server-routing-instance-v1 module
+ The YANG module for vyatta-service-dhcpv6-server-routing-instance-v1
+
+Package: vyatta-dhcp-client-yang
+Architecture: all
+Depends: vyatta-service-dhcp-client (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-dhcp-client module
+ The YANG module for vyatta-dhcp-client
+
+Package: vyatta-dhcp-client-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-client (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-dhcp-client-v1 module
+ The YANG module for vyatta-dhcp-client-v1
+
+Package: vyatta-dhcpv6-client-yang
+Architecture: all
+Depends: vyatta-service-dhcp-client (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-dhcpv6-client module
+ The YANG module for vyatta-dhcpv6-client
+
+Package: vyatta-dhcpv6-client-v1-yang
+Architecture: all
+Depends: vyatta-service-dhcp-client (= ${binary:Version}),
+ ${yang:Depends},
+ ${misc:Depends}
+Section: contrib/admin
+Priority: optional
+Description: vyatta-dhcpv6-client-v1 module
+ The YANG module for vyatta-dhcpv6-client-v1

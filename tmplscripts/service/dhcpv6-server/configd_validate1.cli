@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+commit:expression: exec "vyatta-interfaces.pl --dev $VAR(@) --configured"

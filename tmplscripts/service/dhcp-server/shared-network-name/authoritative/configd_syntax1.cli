@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+syntax:expression: $VAR(@) == "disable" || $VAR(@) == "enable" ; "Invalid keyword $VAR(@) for authoritative. Specify 'enable' or 'disable'"

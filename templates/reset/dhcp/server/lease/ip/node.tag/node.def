@@ -1,0 +1,4 @@
+help: Reset the DHCP lease for a specific IP address in default routing-instance
+run: vyatta-clear-dhcp-lease.pl  --ilfile=/config/dhcpd/dhcpd_vrf_default.leases --olfile=/config/dhcpd/dhcpd_vrf_default.leases --rtinst="default" --lip="$6"  --pidf=/var/run/dhcpd/dhcpd_vrf_default.pid --init=/opt/vyatta/sbin/dhcpd.init
+allowed: local -a ARR=( $(( [ -e /config/dhcpd/dhcpd_vrf_default.leases ] && grep -E '^lease .+ {' /config/dhcpd/dhcpd_vrf_default.leases ) | perl -p -e 's/^lease (.+) {/$1/' | sort -u) )
+         echo -n "<X.X.X.X>" ${ARR[@]}

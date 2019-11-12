@@ -1,0 +1,3 @@
+help: Reset the DHCP lease in a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"

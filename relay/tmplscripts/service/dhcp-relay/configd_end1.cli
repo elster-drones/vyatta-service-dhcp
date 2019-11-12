@@ -1,0 +1,3 @@
+#!/bin/bash
+#support default VRF so far. it will support non-vrf-aware daemon in the future.
+dhcrelay-starter.pl --rtinst=default --init='dhcrelay.init' 1>&2

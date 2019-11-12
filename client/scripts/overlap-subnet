@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# copyright (c) 2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+SUCCESS=0
+FAILURE=1 
+
+# Tests whether *first character* of input string is alphabetic.
+isalpha ()
+{
+if [ -z "$1" ]; then                # No argument passed?
+    return $FAILURE
+fi
+
+case "$1" in
+    [a-zA-Z]*) return $SUCCESS;;  # Begins with a letter?
+    *        ) return $FAILURE;;
+esac
+}
+
+# Convert network address to a decimal number.
+ip2dec () {
+    local a b c d e ip=$1 mask=$2
+    IFS=. read -r a b c d <<< "$ip"
+    e=$((a * 256 ** 3 + b * 256 ** 2 + c * 256 + d))
+       
+    echo "$((e>>$((mask))))"
+}
+
+# Convert a subnet mask to cdr
+mask2cdr ()
+{
+    # Assumes there's no "255." after a non-255 byte in the mask
+    local x=${1##*255.}
+    set -- 0^^^128^192^224^240^248^252^254^ $(( (${#1} - ${#x})*2 )) "${x%%.*}"
+    x=${1%%$3*}
+    echo $(( $2 + (${#x}/4) ))
+}
+
+
+# Main
+# Only argument in the format of xx.xx.xx.xx/255.255.xxx.xxx or xx.xx.xx.xx are allowed.
+checkip=$1
+dhcpintf=$2
+cmd=$3
+IFS=/ read -r ipaddr netmask <<< "$checkip"
+if [ -z "$netmask" ]; then
+    mask=32
+else
+    mask=$(mask2cdr "$netmask")
+fi
+
+# Get all interfaces' name and IPv4 addresses
+OUTPUT=$(${cmd} /sbin/ip -4 -o addr show | awk '{print $2; print $4}')
+
+# Check same subnet or overlapped subnet.
+currintf=
+errintf=
+for item in ${OUTPUT}; do
+    isalpha "${item}"
+    if [ $? -eq $SUCCESS ]; then
+        currintf=$item
+        continue
+    else
+        smallmask=
+        IFS=/ read -r intfipaddr intfmask <<< "$item"
+        if [[ "$((intfmask))" -lt "$((mask))" ]]; then
+            smallmask=$intfmask
+        else
+            smallmask=$mask
+        fi 
+        smallmask=$((32 - ${smallmask}))
+
+        MYIP=$(ip2dec "${ipaddr}" "${smallmask}")
+        INTFIP=$(ip2dec "${intfipaddr}" "${smallmask}")
+
+        if [[ "${dhcpintf}" != "${currintf}" && "$((MYIP))" -eq "$((INTFIP))" ]]; then
+            errintf+="$intfipaddr(${currintf}) "
+        fi 
+    fi
+done
+
+echo "${errintf}"

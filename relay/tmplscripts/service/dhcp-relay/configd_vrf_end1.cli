@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexec
+dhcrelay-starter.pl --rtinst=$VAR(../../@) --init='dhcrelay.init' 1>&2

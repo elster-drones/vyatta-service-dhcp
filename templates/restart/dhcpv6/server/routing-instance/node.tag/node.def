@@ -1,0 +1,8 @@
+help: Restart DHCPv6 server
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run:
+    /opt/vyatta/sbin/dhcpdv6-config.pl --rtinst=$5 --op_mode
+    if [ $? -eq 0 ]; then
+        /opt/vyatta/sbin/dhcpdv6.init restart $5 opmode
+    fi

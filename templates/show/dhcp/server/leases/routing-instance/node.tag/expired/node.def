@@ -1,0 +1,2 @@
+help: Show expired DHCP leases for a routing-instance 
+run: ${vyatta_bindir}/dhcp-show-leases.pl --rtinst $6 --expired

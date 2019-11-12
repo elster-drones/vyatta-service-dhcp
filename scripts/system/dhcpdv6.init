@@ -1,0 +1,109 @@
+#!/bin/bash
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2014 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+. /lib/lsb/init-functions
+
+mkdir -p /opt/vyatta/etc/dhcpdv6
+mkdir -p /var/run/dhcpdv6
+mkdir -p /var/log/dhcpdv6
+
+RTINST=$2
+NAME=dhcpd
+DAEMON=/usr/sbin/$NAME
+CONFIGFILE=/opt/vyatta/etc/dhcpdv6/dhcpdv6_vrf_$RTINST.conf
+PIDFILE=/var/run/dhcpdv6/dhcpdv6_vrf_$RTINST.pid
+ENVFILE=/var/run/dhcpdv6/dhcpdv6_vrf_$RTINST.env
+UNUSEDPIDFILE=/var/run/dhcpdv6/dhcpdv6_vrf_$RTINST-unused.pid
+LEASEFILE=/var/log/dhcpdv6/dhcpdv6_vrf_$RTINST.leases
+DEFAULT='--opmode'
+MODE=${3:+$DEFAULT}
+INTERFACES="$(/opt/vyatta/sbin/listento-intfs.pl --ipversion ipv6 --vrf $RTINST $MODE)"
+
+# exit if no routing instance name is specified.
+if [[ -z $RTINST ]]; then
+    log_failure_msg "Exit. No routing instance name is specified."
+    exit 1
+fi
+
+touch /var/log/dhcpdv6/dhcpdv6_vrf_$RTINST.leases
+
+write_envfile() {
+        rm -f $ENVFILE
+        touch $ENVFILE
+        echo "INTERFACES=$INTERFACES" >> $ENVFILE
+}
+
+start() {
+    if [ ! -f "$CONFIGFILE" ]; then
+	log_failure_msg "Cannot start the DHCPv6 server because configuration file $CONFIGFILE is absent."
+	exit 1
+    fi
+
+    echo "Starting the DHCPv6 server..."
+    if [ -d "/run/systemd/system" ]; then
+        write_envfile
+        if [ "$RTINST" != "default" ]; then
+            OUTPUT=`systemctl start vyatta-service-dhcpv6-server\@$RTINST.service`
+        else
+            OUTPUT=`systemctl start vyatta-service-dhcpv6-server.service`
+        fi
+    else
+        OUTPUT=`/usr/sbin/chvrf $RTINST \
+	    $DAEMON -6 -pf $PIDFILE -cf $CONFIGFILE \
+	    -lf $LEASEFILE $INTERFACES 2>&1`
+    fi
+
+    PID=`cat $PIDFILE 2>/dev/null`
+    if [ ! -d "/proc/$PID" ]; then
+	log_failure_msg "$OUTPUT"
+	exit 1
+    fi
+}
+
+stop() {
+    if [ -d "/run/systemd/system" ]; then
+        if [ "$RTINST" != "default" ]; then
+            OUTPUT=`systemctl stop vyatta-service-dhcpv6-server\@$RTINST.service`
+        else
+            OUTPUT=`systemctl stop vyatta-service-dhcpv6-server.service`
+        fi
+    else
+        if [ -f "$PIDFILE" ]; then
+	    PID=`cat $PIDFILE`
+	    if [ -n "$PID" ]; then
+	        echo "Stopping the DHCPv6 server..."
+	        OUTPUT=`kill -HUP $PID`
+	    fi
+	    rm -f $PIDFILE
+        fi
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    stop)
+        stop
+	;;
+
+    restart)
+        stop
+	start
+	;;
+    status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+    *)
+        log_failure_msg "usage: $0 {start|stop|restart} configfile interface"
+	exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,40 @@
+#! /usr/bin/perl
+
+# **** License ****
+# 
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2014 by Brocade Communications Systems, Inc.
+# All rights reserved.
+# 
+# This code was originally developed by Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2007-2013 Vyatta, Inc.
+# All Rights Reserved.
+# 
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Author: Stephen Hemminger
+# Date: January 2010
+# Description: Show DHCP leases
+# 
+# **** End License ****
+
+use strict;
+use warnings;
+
+my $ver = shift;
+
+opendir (my $dir, "/var/lib/dhcp");
+my @leases;
+while (my $f = readdir $dir) {
+    if ( $ver =~ "v4") {
+        ($f =~ /^dhclient_([a-z0-9{3,}]+).conf$/) && push @leases, $1;
+        ($f =~ /^dhclient_([a-z0-9{3,}]+)_(\d+).conf$/) && push @leases, $1.".".$2;
+    } elsif ($ver =~ "v6") {
+        ($f =~ /^dhclient_v6_([\w.]+).conf$/) && push @leases, $1;
+    } else {
+        die "Unknown IP version: $ver\n";
+    }
+}
+closedir $dir;
+
+print join(' ',@leases), "\n";

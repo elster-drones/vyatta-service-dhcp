@@ -1,0 +1,3 @@
+help: Show DHCPv6 Server Lease details
+
+run: /opt/vyatta/sbin/dhcpdv6-show-leases.pl --detailed

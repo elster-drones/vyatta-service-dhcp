@@ -1,0 +1,5 @@
+help: Reset all DHCP leases in a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run: vyatta-clear-dhcp-lease.pl --ilfile="/config/dhcpd/dhcpd_vrf_$6.leases" --olfile="/config/dhcpd/dhcpd_vrf_$6.leases" --rtinst="$6" --lip=all --pidf="/var/run/dhcpd/dhcpd_vrf_$6.pid" --init=/opt/vyatta/sbin/dhcpd.init
+

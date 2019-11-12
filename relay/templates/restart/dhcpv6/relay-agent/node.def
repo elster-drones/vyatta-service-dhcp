@@ -1,0 +1,4 @@
+help: Restart DHCPv6 relay agent in default routing-instance
+
+run: dhcv6relay-starter.pl --rtinst default --op_mode \
+	--config_action ACTIVE

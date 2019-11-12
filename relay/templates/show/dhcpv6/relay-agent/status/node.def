@@ -1,0 +1,3 @@
+help: Show status of DHCPv6 Relay Agent in default routing-instance
+
+run: dhcv6relay-status.pl --rtinst=default

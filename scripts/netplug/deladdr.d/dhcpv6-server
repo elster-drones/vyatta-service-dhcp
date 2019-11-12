@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2014, Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+DEV="$1"
+PROTO="$2"
+ADDR="$3"
+
+PATH="/opt/vyatta/sbin/:$PATH"
+
+/opt/vyatta/sbin/dhcpdv6.init status opmode &> /dev/null || exit 0
+[[ "inet6" == "$PROTO" ]] || exit 0;
+
+INTERFACES="$(/opt/vyatta/sbin/listento-intfs.pl --ipversion ipv6 --opmode)"
+
+if [ -z "$INTERFACES" ] || [ echo "$INTERFACES" | grep -q "\<$DEV\>" ]; then
+        /opt/vyatta/sbin/dhcpdv6.init restart opmode
+fi

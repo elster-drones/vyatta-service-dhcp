@@ -1,0 +1,31 @@
+# ip command wrapper invoked from vyatta-enter-hook
+
+vrf_route_option=
+if [ ! -f /proc/self/rtg_domain ]; then
+    # find the interface vrf
+    master=$(readlink /sys/class/net/${interface}/master)
+    if [ -n "$master" ]; then
+        vrf=$(basename "$master")
+        if [ "${vrf#vrf}" != "$vrf" ]; then
+            vrf_route_option="vrf $vrf"
+        fi
+    fi
+else
+    # find which routing instance the interface belongs to
+    RDIDFILE=/sys/class/net/${interface}/rdid
+    GETVRFNAME=/usr/sbin/getvrfname
+    if [ -f "$RDIDFILE" -a -x $GETVRFNAME ]; then
+        rdid=`cat $RDIDFILE 2>/dev/null`
+        rtinst_name="$($GETVRFNAME $rdid)"
+    fi
+    if [ -n "$rtinst_name" -a "$rtinst_name" != 'default' ]; then
+        ipcmd_prefix="/usr/sbin/chvrf $rtinst_name"
+    fi
+fi
+
+# We don't support IPv6 route updates with DHCP, so no need to check for "-6"
+if [ "$1" = '-4' -a "$2" = 'route' -a "$3" = 'add' ]; then
+    set -- "$@" $vrf_route_option
+elif [ "$1" = 'route' ] && [ "$2" = 'add' ]; then
+    set -- "$@" $vrf_route_option
+fi

@@ -1,0 +1,2 @@
+help: Show current DHCP leases for default routing-instance
+run: ${vyatta_bindir}/dhcp-show-leases.pl --rtinst default

@@ -1,0 +1,114 @@
+module vyatta-dhcp-client-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-dhcp-client:1";
+	prefix vyatta-dhcp-client-v1;
+
+	import configd-v1 {
+	        prefix configd;
+	}
+	import vyatta-interfaces-v1 {
+	        prefix if;
+	}
+	import vyatta-interfaces-bridge-v1 {
+	        prefix interfaces-bridge;
+	}
+	import vyatta-interfaces-dataplane-v1 {
+	        prefix interfaces-dataplane;
+	}
+	import vyatta-interfaces-bonding-v1 {
+		prefix interfaces-bonding;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019 AT&T Intellectual Property
+		 All rights reserved.
+
+		 Copyright (c) 2015-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-dhcp-client-v1";
+
+	revision 2015-08-14 {
+		description "Initial revision of version 1.";
+	}
+
+	grouping interface-options {
+		description "DHCP client interface options";
+		leaf no-rfc3442 {
+			type empty;
+			configd:help "Disable request for RFC3442 classless static routes";
+		}
+	}
+
+	grouping dhcp-options {
+			container dhcp-options {
+				configd:help "DHCP options";
+				configd:end "dhcp-client-options $VAR(../@)";
+				configd:validate "/opt/vyatta/share/tmplscripts/interfaces/dhcp-client-options/configd_validate1.cli";
+				uses interface-options;
+			}
+	}
+
+	grouping dhcp-options-vif {
+			container dhcp-options {
+				configd:help "DHCP options";
+				configd:end "dhcp-client-options $VAR(../../@).$VAR(../@)";
+				configd:validate "/opt/vyatta/share/tmplscripts/interfaces/dhcp-client-options/configd_validate1.cli";
+				uses interface-options;
+			}
+	}
+
+	augment /if:interfaces/interfaces-bridge:bridge {
+		uses dhcp-options;
+	}
+
+	augment /if:interfaces/interfaces-dataplane:dataplane {
+		uses dhcp-options;
+	}
+
+	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif {
+		uses dhcp-options-vif;
+	}
+	augment /if:interfaces/interfaces-bonding:bonding {
+		uses dhcp-options;
+	}
+
+	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:vif {
+		uses dhcp-options-vif;
+	}
+}

@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+#
+# This debian/rules uses debhelper.
+#
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DEB_CFLAGS_MAINT_APPEND  = -Wall
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+
+override_dh_auto_configure:
+	chmod +x debian/autogen.sh
+	debian/autogen.sh
+	dh_auto_configure -- --prefix=/opt/vyatta --sysconfdir=/opt/vyatta/etc
+
+%:
+	dh $@ --with autoreconf --with systemd --with yang
+
+override_dh_installinit:
+	dh_installinit --no-start --noscripts --no-restart-on-upgrade
+
+override_dh_systemd_start:
+	dh_systemd_start --no-start --no-restart-on-upgrade

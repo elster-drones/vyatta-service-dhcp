@@ -1,0 +1,3 @@
+#!/bin/bash
+#only serve default vrf so far. it will support non-vrf-aware daemon in the future.
+dhcpd-config.pl --out=/opt/vyatta/etc/dhcpd/ --vrf=default --init='/opt/vyatta/sbin/dhcpd.init' 1>&2

@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+end:expression: exec "dhcpd-config.pl --out=/opt/vyatta/etc/dhcpd/ --vrf=$VAR(../../@) --init='/opt/vyatta/sbin/dhcpd.init' "

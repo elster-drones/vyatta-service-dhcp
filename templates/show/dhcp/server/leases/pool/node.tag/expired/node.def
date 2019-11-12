@@ -1,0 +1,2 @@
+help: Show expired DHCP leases for a specific pool
+run: ${vyatta_bindir}/dhcp-show-leases.pl --rtinst default --pool "$6" --expired

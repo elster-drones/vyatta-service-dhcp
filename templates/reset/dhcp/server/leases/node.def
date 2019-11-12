@@ -1,0 +1,3 @@
+help: Reset all DHCP leases in default routing-instance
+run: vyatta-clear-dhcp-lease.pl --ilfile=/config/dhcpd/dhcpd_vrf_default.leases --olfile=/config/dhcpd/dhcpd_vrf_default.leases --rtinst="default" --lip=all --pidf=/var/run/dhcpd/dhcpd_vrf_default.pid --init=/opt/vyatta/sbin/dhcpd.init
+

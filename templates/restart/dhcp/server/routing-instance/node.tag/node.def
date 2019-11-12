@@ -1,0 +1,12 @@
+help: Restart DHCP server in a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run:
+    if cli-shell-api existsEffective routing routing-instance $5 service dhcp-server; then
+        echo -n "Restarting DHCP server..."
+        /opt/vyatta/sbin/dhcpd.init restart $5 opmode
+        if [[ $? -eq 0 ]]; then
+          echo "success!"
+        fi
+    fi   
+

@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+commit:expression: "dhcp" in $VAR(../address/@@) ; "DHCP is not configured on this interface"

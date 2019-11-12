@@ -1,0 +1,17 @@
+#! /bin/bash
+#
+# "configd:end" script for DHCPv6 client interface options.
+
+ifname="$1"
+
+# Proceed only if DHCPv6 client configuration is present
+conffile=/var/lib/dhcp/dhclient_v6_${ifname}.conf
+if [ ! -e $conffile ]; then
+    exit 0
+fi
+
+echo "Updating DHCPv6 client configuration on ${ifname}..."
+/opt/vyatta/sbin/vyatta-address add $ifname dhcpv6
+
+echo "Done."
+exit 0

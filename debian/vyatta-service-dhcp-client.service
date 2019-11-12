@@ -1,0 +1,12 @@
+# this file is needed since dh_systemd_* does not work with instantiated service
+# due to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770344
+
+[Unit]
+Description=DHCP client service 
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecReload=/bin/true
+ExecStop=/bin/true

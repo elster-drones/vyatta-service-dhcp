@@ -1,0 +1,5 @@
+vyatta-service-dhcp (0.12.danos1) unstable; urgency=medium
+
+  * DANOS Import
+
+ -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Fri, 08 Nov 2019 16:47:21 +0000

@@ -1,0 +1,94 @@
+#!/bin/bash
+#
+# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2014 - 2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+RTINST=$2
+ARGS=${@:3}
+
+# exit if no routing instance name is specified.
+if [[ -z $RTINST ]]; then
+	log_failure_msg "Exit. No routing instance name is specified."
+	exit 1
+fi
+
+mkdir -p /var/run/dhcrelayv6
+PIDFILE=/var/run/dhcrelayv6/dhcv6relay_vrf_$RTINST.pid
+ENVFILE=/var/run/dhcrelayv6/dhcv6relay_vrf_$RTINST.env
+
+write_envfile() {
+	rm -f $ENVFILE
+	touch $ENVFILE
+	echo "ARGS=$ARGS" >> $ENVFILE
+}
+
+start() {
+	echo -n "Starting DHCPv6 Relay in routing-instance $RTINST:  "
+	if [ -d "/run/systemd/system" ]; then
+	  write_envfile
+	  if [ "$RTINST" != "default" ]; then
+	    OUTPUT=`systemctl start vyatta-service-dhcpv6-relay\@$RTINST.service`
+	  else
+	    OUTPUT=`systemctl start vyatta-service-dhcpv6-relay.service`
+	  fi
+	else
+	  #pidfile is handled by exe
+	  OUTPUT=`/usr/sbin/chvrf $RTINST /usr/sbin/dhcrelay -6 -pd $PIDFILE $ARGS 2>&1`
+	fi
+
+	PID=`cat $PIDFILE`
+	if [ -d "/proc/$PID" ]; then
+	  echo "OK"
+	else
+	  echo "ERR"
+	  exit 1
+	fi
+}
+
+stop() {
+	echo -n "Stopping DHCPv6 Relay:  "
+
+	if [ -d "/run/systemd/system" ]; then
+	  if [ "$RTINST" != "default" ]; then
+	    OUTPUT=`systemctl stop vyatta-service-dhcpv6-relay\@$RTINST.service`
+	  else
+	    OUTPUT=`systemctl stop vyatta-service-dhcpv6-relay.service`
+	  fi
+	else
+	  if [ -f "$PIDFILE" ]; then
+	    PID=`cat $PIDFILE`
+	    if [ -n "$PID" ]; then
+	      OUTPUT=`kill -HUP $PID`
+
+	      while [ -d "/proc/$PID" ]; do
+	        sleep 1
+	      done
+	    fi
+	    rm -f $PIDFILE
+	  fi
+	fi
+	echo "OK"
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	*)
+		echo "usage: $0 {start|stop|restart} args"
+		exit 1
+		;;
+esac
+
+exit 0

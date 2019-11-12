@@ -1,0 +1,11 @@
+[Unit]
+Description=Vyatta service dhcp client on interface %i
+PartOf=vyatta-service-dhcp-client.service
+
+[Service]
+Type=forking
+EnvironmentFile=/var/lib/dhcp/dhclient_%i.env
+PIDFile=/var/lib/dhcp/dhclient_%i.pid
+ExecStart=/usr/bin/sudo $RDCMD /sbin/dhclient -q -nw -cf /var/lib/dhcp/dhclient_%i.conf -pf /var/lib/dhcp/dhclient_%i.pid -lf /var/lib/dhcp/dhclient_%i.leases %i -sf /sbin/dhclient-script
+ExecReload=/usr/bin/sudo $RDCMD /sbin/dhclient -q -cf /var/lib/dhcp/dhclient_%i.conf -pf /var/lib/dhcp/dhclient_%i.pid -lf /var/lib/dhcp/dhclient_%i.leases -sf /sbin/dhclient-script -r %i
+ExecStop=/usr/bin/sudo $RDCMD /sbin/dhclient -pf /var/lib/dhcp/dhclient_%i.pid -x %i

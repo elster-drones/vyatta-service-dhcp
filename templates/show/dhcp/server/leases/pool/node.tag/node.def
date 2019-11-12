@@ -1,0 +1,6 @@
+help: Show current DHCP leases for a specific pool in default routing-instance
+
+allowed: ( [ -e /opt/vyatta/etc/dhcpd/dhcpd_vrf_default.conf ] && grep '^shared-network ' /opt/vyatta/etc/dhcpd/dhcpd_vrf_default.conf ) | perl -p -e 's/^shared-network\s+(\S+)\s+\{/$1/' | sort -u
+
+run: ${vyatta_bindir}/dhcp-show-leases.pl --rtinst "default" --pool "$6"
+

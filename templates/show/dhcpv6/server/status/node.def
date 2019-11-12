@@ -1,0 +1,3 @@
+help: Show DHCPv6 Server Status for default routing-instance
+
+run: /opt/vyatta/sbin/dhcpdv6-show-status.pl --rtinst "default"

@@ -1,0 +1,6 @@
+relay/scripts/sbin /opt/vyatta
+relay/templates /opt/vyatta/share/vyatta-op
+relay/tmplscripts /opt/vyatta/share
+debian/vyatta-service-dhcpv6-relay.service /lib/systemd/system
+debian/vyatta-service-dhcp-relay@.service /lib/systemd/system
+debian/vyatta-service-dhcpv6-relay@.service /lib/systemd/system

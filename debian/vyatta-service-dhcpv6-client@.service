@@ -1,0 +1,10 @@
+[Unit]
+Description=Vyatta service dhcpv6 client on interface %i
+
+[Service]
+Type=forking
+EnvironmentFile=/var/run/dhclient/dhclient_v6_%i.env
+PIDFile=/var/run/dhclient/dhclient_v6_%i.pid
+ExecStartPre=/usr/bin/sudo $RDCMD /sbin/dhclient -6 -pf /var/run/dhclient/dhclient_v6_%i.pid  -sf /sbin/dhclient-script -x %i
+ExecStart=/usr/bin/sudo $RDCMD /sbin/dhclient -6 -nw -cf /var/lib/dhcp/dhclient_v6_%i.conf -pf /var/run/dhclient/dhclient_v6_%i.pid -lf /var/lib/dhcp/dhclient_v6_%i.leases -sf /sbin/dhclient-script $ARGS %i
+ExecStop=/usr/bin/sudo $RDCMD /sbin/dhclient -6 -1 -cf /var/lib/dhcp/dhclient_v6_%i.conf -pf /var/run/dhclient/dhclient_v6_%i.pid -lf /var/lib/dhcp/dhclient_v6_%i.leases -sf /sbin/dhclient-script -r %i

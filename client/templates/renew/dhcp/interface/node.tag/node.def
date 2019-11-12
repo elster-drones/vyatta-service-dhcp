@@ -1,0 +1,3 @@
+help: Renew DHCP IP address lease for specified interface
+allowed: /opt/vyatta/bin/dhcp-client-get-interfaces --version=v4
+run: /opt/vyatta/sbin/vyatta-dhcp-client --dev="$4" --action=renew

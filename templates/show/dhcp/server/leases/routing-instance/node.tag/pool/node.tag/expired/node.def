@@ -1,0 +1,2 @@
+help: Show expired DHCP leases for a specific pool in a routing-instance 
+run: ${vyatta_bindir}/dhcp-show-leases.pl --routing-instance $6 --pool $8 --expired

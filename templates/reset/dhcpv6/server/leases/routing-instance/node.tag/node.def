@@ -1,0 +1,5 @@
+help: Reset all DHCPv6 leases in a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run: vyatta-clear-dhcp-lease.pl --ilfile=/var/log/dhcpdv6/dhcpdv6_vrf_$6.leases --olfile=/var/log/dhcpdv6/dhcpdv6_vrf_$6.leases --rtinst="$6" --lipv6=all --pidf=/var/run/dhcpdv6/dhcpdv6_vrf_$6.pid --init=/opt/vyatta/sbin/dhcpdv6.init
+

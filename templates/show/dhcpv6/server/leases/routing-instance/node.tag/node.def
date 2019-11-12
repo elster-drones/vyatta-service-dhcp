@@ -1,0 +1,4 @@
+help: Show DHCPv6 Server Leases for a specific routing-instance
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run: /opt/vyatta/sbin/dhcpdv6-show-leases.pl --rtinst $6

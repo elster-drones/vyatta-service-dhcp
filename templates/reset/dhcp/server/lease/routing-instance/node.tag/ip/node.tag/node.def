@@ -1,0 +1,4 @@
+help: Reset the DHCP lease for a specific IP address
+run: vyatta-clear-dhcp-lease.pl  --ilfile="/config/dhcpd/dhcpd_vrf_$6.leases" --olfile="/config/dhcpd/dhcpd_vrf_$6.leases" --rtinst="$6" --lip="$8"  --pidf="/var/run/dhcpd/dhcpd_vrf_$6.pid" --init=/opt/vyatta/sbin/dhcpd.init
+allowed: local -a ARR=( $(( [ -e /config/dhcpd/dhcpd_vrf_$6.leases ] && grep -E '^lease .+ {' /config/dhcpd/dhcpd_vrf_$6.leases ) | perl -p -e 's/^lease (.+) {/$1/' | sort -u) )
+         echo -n "<X.X.X.X>" ${ARR[@]}

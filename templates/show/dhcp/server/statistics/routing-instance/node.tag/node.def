@@ -1,0 +1,4 @@
+help: Show current DHCP statistics for a routing-instance 
+allowed: local -a ARR=( $(cli-shell-api -- listEffectiveNodes routing routing-instance) )
+          echo "${ARR[@]//\'/}"
+run: ${vyatta_bindir}/vyatta-show-dhcp-server.pl --show-stats --rtinst "$6"

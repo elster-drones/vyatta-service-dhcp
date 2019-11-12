@@ -1,0 +1,31 @@
+# ip command wrapper invoked from vyatta-enter-hook
+
+check_overlap() {
+    [ "$1" = '-4' ] && shift 1
+    [ "$1" = 'addr' ] && [ "$2" = 'add' ] || return
+    [ "$3" = "$new_ip_address" ] || [ "$3" = "$new_ip_address/$new_subnet_mask" ] || return
+    [ "$4" = 'broadcast' ] && shift 2
+    [ "$4" = 'dev' ] && [ "$5" = "$interface" ] || return
+    [ "$reason" != 'TIMEOUT' ] || return
+
+    local IPCMD=''
+    if [ -n "$rtinst_name" ] && [ "$rtinst_name" != 'default' ]; then
+        IPCMD="/usr/sbin/chvrf $rtinst_name"
+    fi
+
+    local OVERLAPSCRIPT=/opt/vyatta/sbin/overlap-subnet
+
+    # check whether the new IP address overlaps existing interfaces' subnet.
+    # if subnets overlap, exit immediately.
+    local OUTPUT=''
+    if [ -e "$OVERLAPSCRIPT" ]; then
+        OUTPUT=$($OVERLAPSCRIPT $new_ip_address${new_subnet_mask:+/$new_subnet_mask} "$interface" "$IPCMD")
+    fi
+    if [ -n "$OUTPUT" ]; then
+        echo "$new_ip_address${new_subnet_mask:+/$new_subnet_mask} overlaps $OUTPUT"
+        reason='OVERLAPSUBNET'
+        exit_with_hooks 2
+    fi
+}
+
+check_overlap "$@"

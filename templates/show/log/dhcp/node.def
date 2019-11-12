@@ -1,0 +1,2 @@
+help: Show log for Dynamic Host Control Protocol (DHCP)
+run:  journalctl -a --no-pager -u 'vyatta-service-dhcp*'
