@@ -1,1 +1,2 @@
+relay/scripts/1550-vyatta-service-dhcpv6-relay-routing-instance opt/vyatta/share/vyatta-op/functions/tech-support.d
 relay/yang/vyatta-service-dhcpv6-relay-routing-instance-v1.yang /usr/share/configd/yang/

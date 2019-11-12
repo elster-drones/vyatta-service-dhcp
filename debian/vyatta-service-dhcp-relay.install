@@ -1,3 +1,4 @@
+relay/scripts/1500-vyatta-service-dhcpv6-relay opt/vyatta/share/vyatta-op/functions/tech-support.d
 relay/scripts/sbin /opt/vyatta
 relay/templates /opt/vyatta/share/vyatta-op
 relay/tmplscripts /opt/vyatta/share

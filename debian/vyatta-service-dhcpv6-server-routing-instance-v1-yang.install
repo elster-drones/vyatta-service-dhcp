@@ -1,1 +1,2 @@
+scripts/1450-vyatta-service-dhcpv6-server-routing-instance opt/vyatta/share/vyatta-op/functions/tech-support.d
 yang/vyatta-service-dhcpv6-server-routing-instance-v1.yang /usr/share/configd/yang/
