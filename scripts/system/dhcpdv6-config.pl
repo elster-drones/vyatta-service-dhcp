@@ -3,7 +3,7 @@
 # Module: dhcpdv6-config.pl
 #
 # **** License ****
-# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2015 by Brocade Communications Systems, Inc.
 # All rights reserved.
 #
@@ -430,6 +430,8 @@ if ($dhcpv6_server) {
     chomp($date_time);
     printf( $config_filehandle "# Auto-generated on: $date_time\n" );
     printf( $config_filehandle "#\n" );
+
+    printf( $config_filehandle "db-time-format local;\n" );
 
     $vcDHCP->setLevel("$config_prefix dhcpv6-server");
 

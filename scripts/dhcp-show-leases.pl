@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2013-2015, Brocade Comunications Systems, Inc.
 # All rights reserved.
 #
@@ -39,10 +39,14 @@ sub get_leases {
         }
         next unless $cur;
 
-        if ( $line =~ /starts\s\d\s(\d+\/\d+\/\d+\s\d+:\d+:\d+)\;/ ) {
+        if ( $line =~ /starts epoch\s(\d*);\s+/ ) {
+            $cur->{start} = strftime ( "%Y/%m/%d %X", localtime($1));
+        } elsif ( $line =~ /starts\s\d\s(\d+\/\d+\/\d+\s\d+:\d+:\d+)\;/ ) {
             $cur->{start} = $1;
         }
-        if ( $line =~ /ends\s\d\s(\d+\/\d+\/\d+\s\d+:\d+:\d+)\;/ ) {
+        if ( $line =~ /ends epoch\s(\d*);\s+/ ) {
+            $cur->{end} = strftime ( "%Y/%m/%d %X", localtime($1));
+        } elsif ( $line =~ /ends\s\d\s(\d+\/\d+\/\d+\s\d+:\d+:\d+)\;/ ) {
             $cur->{end} = $1;
         }
         if ($line =~ /shared-network:\s(.*)/) {

@@ -3,7 +3,7 @@
 # Module: dhcpdv6-leases.pl
 #
 # **** License ****
-# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2014, Brocade Comunications Systems, Inc.
 # All Rights Reserved.
 #
@@ -307,6 +307,11 @@ foreach my $line (@lines) {
 	log_msg("Setting iaprefix to $iaprefix.\n");
 	log_msg("s1 $s1 s2 $s2\n");
 	$level++;
+    } elsif ($line =~ /^.*cltt epoch/) {
+	my $epoch;
+	($s1, $s2, $epoch) = split(' ', $line);
+	$epoch =~ s/;//;
+	$cltt = int($epoch);
     } elsif ($line =~ /^.*cltt/) {
 	#
 	# Clients last transaction time.  Only record the latest entry
@@ -326,6 +331,11 @@ foreach my $line (@lines) {
     } elsif ($line =~ /^.*ends never/) {
 	log_msg("Setting expiry time to 0\n");
 	$exp_time = 0;
+    } elsif ($line =~ /^.*ends epoch /) {
+	my $epoch;
+	($s1, $s2, $epoch) = split(' ', $line);
+	$epoch =~ s/;//;
+	$exp_time = int($epoch);
     } elsif ($line =~ /^.*ends /) {
 	my $date;
 	my $time;

@@ -3,7 +3,7 @@
 #
 # **** License ****
 #
-# Copyright (c) 2019 AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
 # All rights reserved.
 #
@@ -91,6 +91,8 @@ EOM
     else {
         $genout_initial .= "ddns-update-style none;\n";
     }
+
+    $genout_initial .= "db-time-format local;\n";
 
     $vcDHCP->setLevel("$config_prefix dhcp-server");
     my @global_params = $vcDHCP->returnValues("global-parameters");
