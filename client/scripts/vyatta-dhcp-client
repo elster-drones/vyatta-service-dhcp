@@ -205,12 +205,10 @@ sub stop_dhclient {
       if ( ( defined $status ) && ( $status =~ /^active/ ) ) {
         $release_cmd =
 "systemctl reload vyatta-service-dhcp-client\@$intf.service;";
-        $release_cmd .= "rm -f $intf_process_id_file $intf_env_file 2> /dev/null";
       }
     } else { # stop dhcp client daemon
       $release_cmd =
 "$dhcp_daemon -q -cf $intf_config_file -pf $intf_process_id_file -lf $intf_leases_file -sf $script_file -r $intf 2> /dev/null;";
-      $release_cmd .= "rm -f $intf_process_id_file $intf_env_file 2> /dev/null";
     }
 
     if ( $release_cmd ) {
