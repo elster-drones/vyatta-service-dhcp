@@ -1,3 +1,9 @@
+vyatta-service-dhcp (0.16) unstable; urgency=medium
+
+  * dhcp-client: dhclient to unlink env files
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Wed, 10 Jun 2020 10:43:32 +0100
+
 vyatta-service-dhcp (0.15) unstable; urgency=medium
 
   * dhcp: show leases taking account of timezone
