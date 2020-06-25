@@ -5,7 +5,7 @@ log_v4_lease() {
 	LOG=/var/lib/dhcp/dhclient_"$interface"_lease
         echo `date` > $LOG
 
-        for i in reason interface new_expiry new_dhcp_lease_time medium \
+        for i in reason overlap interface new_expiry new_dhcp_lease_time medium \
                         alias_ip_address new_ip_address new_broadcast_address \
                         new_subnet_mask new_domain_name new_domain_search new_network_number \
                         new_domain_name_servers new_routers new_static_routes \
@@ -13,6 +13,21 @@ log_v4_lease() {
                         old_ip_address old_subnet_mask old_domain_name old_domain_search\
                         old_domain_name_servers old_routers \
                         old_static_routes; do
+                echo $i=\'${!i}\' >> $LOG
+        done
+    fi
+}
+
+log_v6_lease() {
+    if [ -n "$new_ip6_address" ] || [ -n "$old_ip6_address" ] ; then
+        LOG=/var/lib/dhcp/dhclient_v6_"$interface"_lease
+        echo `date` > $LOG
+
+        for i in reason overlap interface new_expiry new_dhcp_lease_time \
+                        new_ip6_address new_dhcp6_domain_search \
+                        new_dhcp6_name_servers \
+                        old_ip6_address old_dhcp6_domain_search \
+                        old_dhcp6_name_servers ; do
                 echo $i=\'${!i}\' >> $LOG
         done
     fi
@@ -82,6 +97,8 @@ case "$reason" in
 	;;
 
     BOUND6)
+	log_v6_lease
+
 	do_vyatta_updates
 	if [ -e "/var/run/.${interface}.tunnel_deferred.txt" ]; then
 		/opt/vyatta/sbin/vyatta-tunnel-deferred.pl "DEFERRED_CREATE" "$interface" "$new_ip_address"
@@ -89,6 +106,8 @@ case "$reason" in
 	;;
 
     RENEW6|REBIND6)
+	log_v6_lease
+
 	if [ "${new_dhcp6_domain_search}" != "${old_dhcp6_domain_search}" ] ||
 	    [ "${new_dhcp6_name_servers}" != "${old_dhcp6_name_servers}" ]; then
 	    do_vyatta_updates
@@ -99,6 +118,8 @@ case "$reason" in
 	;;
 
     EXPIRE6|RELEASE6|STOP6)
+	log_v6_lease
+
 	# delete interface specific resolve.conf
 	if [ -z "$new_dhcp6_domain_search" ] &&
 	   [ -z "$new_dhcp6_name_servers" ]; then
@@ -107,6 +128,16 @@ case "$reason" in
 
 	if [ -n "${old_ip6_address}" ] || [ -n "${old_ip6_prefixlen}" ]; then
 	    do_vyatta_updates
+	fi
+	;;
+
+    OVERLAPSUBNET6)
+	log_v6_lease
+
+	# delete interface specific resolve.conf
+	if [ -z "$new_dhcp6_domain_search" ] &&
+	   [ -z "$new_dhcp6_name_servers" ]; then
+	    rm -f $resolv_conf
 	fi
 	;;
 

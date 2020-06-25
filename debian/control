@@ -58,6 +58,7 @@ Depends:
  libhtml-tagset-perl (>= 3.20-2),
  libnetaddr-ip-perl (>= 4.007+dfsg-1),
  perl (>= 5.8.8),
+ python3 (>= 3.4),
  procps (>= 1:3.2.7-3),
  rsyslog | system-log-daemon,
  sed (>= 4.1.5),

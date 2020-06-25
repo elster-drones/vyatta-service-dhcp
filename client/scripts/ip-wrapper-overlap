@@ -19,10 +19,10 @@ check_overlap() {
     # if subnets overlap, exit immediately.
     local OUTPUT=''
     if [ -e "$OVERLAPSCRIPT" ]; then
-        OUTPUT=$($OVERLAPSCRIPT $new_ip_address${new_subnet_mask:+/$new_subnet_mask} "$interface" "$IPCMD")
+        OUTPUT=$($OVERLAPSCRIPT -p $new_ip_address${new_subnet_mask:+/$new_subnet_mask} -i "$interface")
     fi
     if [ -n "$OUTPUT" ]; then
-        echo "$new_ip_address${new_subnet_mask:+/$new_subnet_mask} overlaps $OUTPUT"
+        overlap="$new_ip_address${new_subnet_mask:+/$new_subnet_mask} overlaps $OUTPUT"
         reason='OVERLAPSUBNET'
         exit_with_hooks 2
     fi
