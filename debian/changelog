@@ -1,3 +1,9 @@
+vyatta-service-dhcp (0.18) unstable; urgency=medium
+
+  * dhcp: ipv6 overlap check to exclude interface
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Thu, 09 Jul 2020 10:18:45 +0100
+
 vyatta-service-dhcp (0.17) unstable; urgency=medium
 
   * dhcp: client script overlap support for IPv6
