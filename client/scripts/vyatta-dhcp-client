@@ -12,7 +12,7 @@ use warnings;
 
 use lib "/opt/vyatta/share/perl5/";
 use Vyatta::Config;
-use Vyatta::DHCPClient qw(generate_dhclient_intf_files is_dhcp_enabled);
+use Vyatta::DHCPClient qw(generate_dhclient_intf_files get_dhclient_options is_dhcp_enabled);
 use Vyatta::File qw(touch);
 use Vyatta::Interface;
 use Getopt::Long;
@@ -112,6 +112,8 @@ sub dhcp_update_config {
     my $output   = dhcp_conf_header();
     my $hostname = get_hostname();
 
+    my ( $dhclient_globals, $dhclient_req_opt ) = get_dhclient_options($intf, "ipv4");
+
     $output .= "option dhcp-max-message-size code 57 = unsigned integer 16;\n\n";
 
     if (rfc3442_enabled($intf)) {
@@ -121,11 +123,14 @@ sub dhcp_update_config {
     my ( $ztopt, $ztcode ) = load_ztopts($ztconf_file, $intf);
     $output .= get_zt_optstr( $ztopt, $ztcode ) . "\n\n" if defined $ztopt;
 
+    # Update the dhclient global parameters which are read form dhcp option file
+    $output .= " " . $dhclient_globals if defined $dhclient_globals;
+
     $output .= "interface \"$intf\" {\n";
     if ( defined($hostname) ) {
         $output .= "\tsend host-name \"$hostname\";\n";
     }
- 
+
     $output .= "\tsend dhcp-max-message-size 1500;\n";
 
     $output .=
@@ -143,6 +148,9 @@ sub dhcp_update_config {
     }
 
     $output .= ", " . $ztopt if defined $ztopt;
+
+    # Update the dhclient request parameters which are read form dhcp option file
+    $output .= " " . $dhclient_req_opt if defined $dhclient_req_opt;
 
     $output .= ";\n";
     $output .= "}\n\n";
