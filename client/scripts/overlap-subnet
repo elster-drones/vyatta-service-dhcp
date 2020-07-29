@@ -67,7 +67,7 @@ def main():
     for key in vrfinfo:
         caddr = ipaddress.ip_network(vrfinfo[key], strict=False)
         if naddr.overlaps(caddr):
-            if naddr.version == 6 and key == args.intf:
+            if key == args.intf and (naddr == caddr or naddr.version == 6):
                 continue
             print(vrfinfo[key] + "(" + key + ")")
 
