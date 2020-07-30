@@ -1,3 +1,9 @@
+vyatta-service-dhcp (0.19) unstable; urgency=medium
+
+  * dhcp: avoid overlap check for same dhcp address
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Thu, 30 Jul 2020 10:44:51 +0100
+
 vyatta-service-dhcp (0.18) unstable; urgency=medium
 
   * dhcp: ipv6 overlap check to exclude interface
