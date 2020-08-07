@@ -1,3 +1,10 @@
+vyatta-service-dhcp (0.20) unstable; urgency=medium
+
+  [ Vishwanath Chandra ]
+  * dhcp ipv4 and ipv6 script changes to update the dhclient conf files for ztp.
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Fri, 07 Aug 2020 10:06:23 +0100
+
 vyatta-service-dhcp (0.19) unstable; urgency=medium
 
   * dhcp: avoid overlap check for same dhcp address
