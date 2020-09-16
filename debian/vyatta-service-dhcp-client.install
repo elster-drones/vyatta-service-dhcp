@@ -6,6 +6,7 @@ client/scripts/dhcpv6-client-options /opt/vyatta/sbin
 client/scripts/dhcpv6-client-show-leases /opt/vyatta/sbin
 client/scripts/netplug/linkdown/dhclient /etc/netplug/linkdown.d
 client/scripts/netplug/linkup/dhclient /etc/netplug/linkup.d
+client/scripts/netplug/linkup/dhclient-6 /etc/netplug/linkup.d
 client/scripts/netplug/newaddr.d/dhclient-6 /etc/netplug/newaddr.d
 client/scripts/netplug/macchange.d/dhclient /etc/netplug/macchange.d
 client/scripts/overlap-subnet /opt/vyatta/sbin

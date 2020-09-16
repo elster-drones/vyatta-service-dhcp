@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2020 AT&T Intellectual Property.  All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+
+use strict;
+use warnings;
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Misc qw(getIP is_link_local);
+
+sub usage {
+    print <<EOF;
+Usage: <device>
+EOF
+    exit 1;
+}
+
+my $dev = shift;
+
+usage() unless defined($dev);
+
+system(
+    "systemctl", "is-active",
+    "-q",        "vyatta-service-dhcpv6-client\@$dev.service"
+);
+exit(0) if $? eq 0;
+
+foreach my $conf_addr ( Vyatta::Misc::get_intf_cfg_addr($dev) ) {
+    next unless ( $conf_addr eq "dhcpv6" );
+
+    # dhcpv6 requires a link local address
+    my $found = grep { is_link_local($_) } getIP( $dev, 6 );
+    if ( $found != 0 ) {
+        system( "/opt/vyatta/sbin/vyatta-dhcpv6-client",
+            "--start", "--ifname", "$dev" );
+    }
+    last;
+}
+
+exit 0
