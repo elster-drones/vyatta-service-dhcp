@@ -60,7 +60,7 @@ sub gen_conf_file {
 
     # Update the dhclient global parameters which are read form dhcp option file
     my $output = " " . $dhclient_globals if defined $dhclient_globals;
-    print $FD_WR "$output";
+    print $FD_WR "$output" if defined $output;
 
     print $FD_WR "interface \"$ifname\" {\n";
 #    my $hostname = hostname;
