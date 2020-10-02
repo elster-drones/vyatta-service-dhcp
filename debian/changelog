@@ -1,3 +1,10 @@
+vyatta-service-dhcp (0.21) unstable; urgency=medium
+
+  * dhcp-client: start dhcpv6 client on linkup
+  * dhcpv6-client: script error for absent global opts
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Fri, 02 Oct 2020 13:52:06 +0100
+
 vyatta-service-dhcp (0.20) unstable; urgency=medium
 
   [ Vishwanath Chandra ]
