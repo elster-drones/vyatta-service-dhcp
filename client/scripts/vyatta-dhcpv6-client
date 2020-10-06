@@ -243,16 +243,17 @@ if (defined($start_flag) || defined ($renew_flag)) {
 
     system("$cmdname -6 -pf $pidfile -sf $script_file -x $ifname 2> /dev/null");
 
-    # Check IPv6 link local address. Can't run dhclient if no IPv6 link local address.
-    # But, we let the commit go through for bonding interface.
+    # Check IPv6 link local address, otherwise, issue a warning that the
+    # dhcpv6 address will be applied when the link-local address becomes
+    # available (notified via netplug newaddr / linkup dhcpv6 hook).
     my $out = `$rdcmd ip addr list dev $ifname | grep "inet6 fe80"`;
     if (!$out) {
         if ($ifname =~ /bond/) {
             printf("DHCPv6 client will be started once bond interface is up.\n");
-            exit 0;
         } else {
-            die "Cannot start DHCPv6 client daemon without IPv6 link local address!\n";
+            printf("DHCPv6 client will be started once a link-local address is available.\n");
         }
+        exit 0;
     }
 
     # Accept router advertisements also for forwarding ports in case this is
