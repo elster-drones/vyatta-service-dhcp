@@ -257,6 +257,12 @@ Priority: optional
 Description: vyatta-dhcp-client-v1 module
  The YANG module for vyatta-dhcp-client-v1
 
+Package: vyatta-interfaces-switch-vif-dhcp-client-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-interfaces-switch-vif-dhcp-client-v1 module
+ DHCP client ethernet switch vif interface configuration
+
 Package: vyatta-dhcpv6-client-yang
 Architecture: all
 Depends: vyatta-service-dhcp-client (= ${binary:Version}),
@@ -276,3 +282,9 @@ Section: contrib/admin
 Priority: optional
 Description: vyatta-dhcpv6-client-v1 module
  The YANG module for vyatta-dhcpv6-client-v1
+
+Package: vyatta-interfaces-switch-vif-dhcpv6-client-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-interfaces-switch-vif-dhcpv6-client-v1 module
+ DHCPv6 client ethernet switch vif interface configuration
