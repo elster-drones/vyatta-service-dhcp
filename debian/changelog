@@ -1,3 +1,9 @@
+vyatta-service-dhcp (0.23) unstable; urgency=medium
+
+  * dhcp: client support on switch vlan
+
+ -- Dewi Morgan <dewi.morgan@intl.att.com>  Tue, 23 Feb 2021 12:01:13 +0000
+
 vyatta-service-dhcp (0.22) unstable; urgency=medium
 
   * dhcpv6-client: warning for absent link-local addr
