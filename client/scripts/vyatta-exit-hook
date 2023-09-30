@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # vyatta dhclient exit script
 
 log_v4_lease() {
@@ -13,7 +15,7 @@ log_v4_lease() {
                         old_ip_address old_subnet_mask old_domain_name old_domain_search\
                         old_domain_name_servers old_routers \
                         old_static_routes; do
-                echo $i=\'${!i}\' >> $LOG
+                echo $i >> $LOG
         done
     fi
 }

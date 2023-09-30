@@ -1,10 +1,13 @@
+#!/bin/bash
 # vyatta dhclient enter script
 
 # IPv6 reasons end with "6", others are IPv4 reasons
 # Select the resolve.conf name accordingly
 #
-if [ "${reason: -1}" = "6" ]; then
-    resolv_conf=/var/lib/dhcp/dhclient-v6-$interface-resolv.conf
+if [[ "${reason}" ]]; then
+    if [ "${reason: -1}" = "6" ]; then
+        resolv_conf=/var/lib/dhcp/dhclient-v6-$interface-resolv.conf
+    fi
 else
     resolv_conf=/var/lib/dhcp/dhclient-v4-$interface-resolv.conf
 fi
