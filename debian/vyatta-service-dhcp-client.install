@@ -19,5 +19,3 @@ client/scripts/ip-wrapper-vrf /etc/dhcp/ip-wrappers
 client/scripts/1300-vyatta-service-dhcp-client opt/vyatta/share/vyatta-op/functions/tech-support.d
 client/templates /opt/vyatta/share/vyatta-op
 client/tmplscripts /opt/vyatta/share
-debian/vyatta-service-dhcp-client@.service /lib/systemd/system
-debian/vyatta-service-dhcpv6-client@.service /lib/systemd/system
