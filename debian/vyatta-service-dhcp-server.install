@@ -1,4 +1,6 @@
 debian/tmp/etc
 debian/tmp/opt
+debian/vyatta-service-dhcpv6-server.service usr/lib/systemd/system
+debian/vyatta-service-dhcpv6-server@.service usr/lib/systemd/system
 scripts/1200-vyatta-service-dhcp-server opt/vyatta/share/vyatta-op/functions/tech-support.d
 scripts/1400-vyatta-service-dhcpv6-server opt/vyatta/share/vyatta-op/functions/tech-support.d
